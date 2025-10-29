@@ -1,5 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
+import { CurrentYear } from "./current-year";
+import { Suspense } from "react";
 
 export default function Footer() {
   return (
@@ -17,9 +19,14 @@ export default function Footer() {
 
         <span className="text-muted-foreground block text-center text-sm">
           {" "}
-          © {new Date().getFullYear()} NoteForge, All rights reserved
+          ©
+          <Suspense fallback={<span>2025</span>}>
+            <CurrentYear />
+          </Suspense>
+          NoteForge, All rights reserved
         </span>
       </div>
     </footer>
   );
 }
+

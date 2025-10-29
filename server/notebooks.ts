@@ -5,8 +5,14 @@ import { InsertNotebook, notebooks } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { cacheLife, cacheTag, revalidateTag } from "next/cache";
 
 export const getNotebooks = async () => {
+  "use cache: private";
+  cacheLife("max");
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  console.log("getNotebooks");
+
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -18,6 +24,7 @@ export const getNotebooks = async () => {
         message: "User not found",
       };
     }
+    cacheTag(`notebooks-${userId}`);
 
     const notebooksByUser = await db.query.notebooks.findMany({
       where: eq(notebooks.userId, userId),
@@ -40,6 +47,7 @@ export const getNotebooks = async () => {
 };
 
 export const createNotebook = async (data: InsertNotebook) => {
+  revalidateTag(`notebooks-${data.userId}`, "max");
   try {
     await db.insert(notebooks).values({ ...data });
 
@@ -78,6 +86,7 @@ export const getNoteBookById = async (id: string) => {
 };
 
 export const updateNotebook = async (id: string, data: InsertNotebook) => {
+  revalidateTag(`notebooks-${data.userId}`, "max");
   try {
     await db.update(notebooks).set(data).where(eq(notebooks.id, id));
 
@@ -96,7 +105,11 @@ export const updateNotebook = async (id: string, data: InsertNotebook) => {
 
 export const deleteNotebook = async (id: string) => {
   try {
-    await db.delete(notebooks).where(eq(notebooks.id, id));
+    const notebook = await db
+      .delete(notebooks)
+      .where(eq(notebooks.id, id))
+      .returning();
+    revalidateTag(`notebooks-${notebook[0].userId}`, "max");
     return {
       success: true,
       message: "Notebook deleted successfully",

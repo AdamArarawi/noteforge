@@ -34,7 +34,7 @@ export async function AppSidebar({
   };
 
   return (
-    <Sidebar {...props} collapsible="icon">
+    <Sidebar {...props}>
       <SidebarHeader className="overflow-hidden transition-all duration-300">
         <Link href="/dashboard" className="flex items-center gap-2 ">
           <Image

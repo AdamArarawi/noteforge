@@ -22,6 +22,8 @@ export const createNote = async (data: InsertNote) => {
 };
 
 export const getNoteById = async (id: string) => {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
   try {
     const note = await db.query.notes.findFirst({
       where: eq(notes.id, id),

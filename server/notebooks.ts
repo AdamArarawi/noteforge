@@ -9,8 +9,7 @@ import { cacheLife, cacheTag, revalidateTag } from "next/cache";
 
 export const getNotebooks = async () => {
   "use cache: private";
-  cacheLife("max");
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  cacheLife("hours");
   console.log("getNotebooks");
 
   try {
